@@ -12,3 +12,7 @@ Prototype cliquable de la plateforme e-learning New Elite Agency, en un seul fic
 ## Démo
 
 Ouvrir `index.html`. Les identifiants sont préremplis sur la page Connexion, avec un bouton « Connexion administrateur (démo) ». L'état est gardé dans le navigateur (`localStorage`) ; « Réinitialiser la démo » dans l'espace remet tout à zéro. Aucun paiement, e-mail ou upload réel.
+
+## Version Wix
+
+Le dossier `wix/` contient le même site découpé en 6 fichiers (`index.html`, `styles.css`, `app1.js` à `app4.js`), tel qu'il est publié sur Wix (site headless `6aebd35f-a36c-47f5-9c1a-3c5308fcd33c`). Pour mettre le site Wix à jour, renvoyer le fichier modifié, complet, sur ce même site.
