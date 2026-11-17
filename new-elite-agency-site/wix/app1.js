@@ -81,13 +81,13 @@
   var I18N = {
     fr: { home: "Accueil", catalog: "Formations", ebooks: "E-books", about: "L'agence", faq: "FAQ", contact: "Contact", login: "Connexion", space: "Mon espace",
       heroT: "Rejoignez <em>l'élite</em> du digital.", heroL: "Formations vidéo et e-books en trading, marketing, design, code et stratégie. Un parcours exigeant, des niveaux à gravir, une communauté qui vise haut.",
-      cta1: "Accéder à mon espace", cta2: "Voir les formations", freeT: "Commencez gratuitement", catsT: "Cinq disciplines, un même niveau d'exigence" },
+      cta1: "Accéder à mon espace", cta2: "Voir les formations", cta3: "Rejoindre une formation", freeT: "Commencez gratuitement", catsT: "Cinq disciplines, un même niveau d'exigence" },
     de: { home: "Start", catalog: "Kurse", ebooks: "E-Books", about: "Die Agentur", faq: "FAQ", contact: "Kontakt", login: "Anmelden", space: "Mein Bereich",
       heroT: "Werde Teil der <em>digitalen Elite</em>.", heroL: "Videokurse und E-Books zu Trading, Marketing, Design, Code und Strategie. Ein anspruchsvoller Weg, Level zum Aufsteigen und eine ehrgeizige Community.",
-      cta1: "Zu meinem Bereich", cta2: "Kurse ansehen", freeT: "Kostenlos starten", catsT: "Fünf Disziplinen, ein Anspruch" },
+      cta1: "Zu meinem Bereich", cta2: "Kurse ansehen", cta3: "Einem Kurs beitreten", freeT: "Kostenlos starten", catsT: "Fünf Disziplinen, ein Anspruch" },
     en: { home: "Home", catalog: "Courses", ebooks: "E-books", about: "The agency", faq: "FAQ", contact: "Contact", login: "Log in", space: "My space",
       heroT: "Join the <em>digital elite</em>.", heroL: "Video courses and e-books in trading, marketing, design, code and strategy. A demanding path, levels to climb and a community that aims high.",
-      cta1: "Go to my space", cta2: "See the courses", freeT: "Start for free", catsT: "Five disciplines, one standard" }
+      cta1: "Go to my space", cta2: "See the courses", cta3: "Join a course", freeT: "Start for free", catsT: "Five disciplines, one standard" }
   };
 
   /* ================= État ================= */

@@ -95,7 +95,8 @@
   var PRIVATE = ["espace", "mes-formations", "bibliotheque", "profil", "classement", "forum", "admin", "admin-contenus", "admin-promos", "admin-users", "admin-annonces"];
   function render2() {
     if (P) { clearInterval(P.timer); clearInterval(P.wm); P = null; }
-    var h = (location.hash || "#accueil").slice(1) || "accueil", m, html;
+    if (window.NE3D) window.NE3D.unmount(); // jamais de 3D derrière le paiement, les lecteurs, le forum ou l'admin
+    var h =(location.hash || "#accueil").slice(1) || "accueil", m, html;
     if ((PRIVATE.indexOf(h) !== -1 || /^sujet-/.test(h)) && !S.logged) { h = "connexion"; }
     if (/^admin/.test(h) && S.role !== "admin") h = "espace";
     if (h === "accueil") html = vHome();
@@ -114,6 +115,7 @@
     header(h);
     $("mobileMenu").classList.remove("open"); $("menuBtn").setAttribute("aria-expanded", "false");
     bindPlayer();
+    if (window.NE3D && $("towerStage")) window.NE3D.mount($("towerStage"));
     var q = $("q"); if (q) q.oninput = function () { filter.q = this.value; var pos = this.selectionStart; render2.keepType = true; var hh = location.hash; $("app").innerHTML = vCatalog(hh === "#ebooks"); var nq = $("q"); nq.focus(); nq.setSelectionRange(pos, pos); nq.oninput = q.oninput; };
     bindForms();
   }

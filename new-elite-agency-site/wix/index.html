@@ -15,7 +15,7 @@
 <div class="announce" id="announce" hidden></div>
 <header class="site-header">
   <div class="wrap nav">
-    <a class="brand" href="#accueil" aria-label="New Elite Agency, accueil">
+    <a class="brand" href="#accueil">
       <svg viewBox="0 0 64 64" aria-hidden="true" id="logoMark"></svg>
       <span><b>NEW ELITE</b><small>Agency · Academy</small></span>
     </a>
@@ -40,9 +40,9 @@
         <p class="small" style="margin-top:16px;max-width:36ch">Formations vidéo et e-books pour celles et ceux qui veulent des résultats : trading, marketing digital, design, code et stratégie.</p>
         <p style="margin-top:16px;font-family:var(--display);font-size:11px;letter-spacing:.3em;color:var(--gold)">EXCELLENCE • STRATÉGIE • RÉSULTATS</p>
       </div>
-      <div><h4>Plateforme</h4><ul><li><a href="#catalogue">Catalogue</a></li><li><a href="#ebooks">E-books</a></li><li><a href="#apropos">Qui est derrière l'agence</a></li><li><a href="#faq">FAQ</a></li><li><a href="#contact">Contact</a></li></ul></div>
-      <div><h4>Légal</h4><ul><li><a href="#cgv">CGV</a></li><li><a href="#cgu">Conditions d'utilisation</a></li><li><a href="#confidentialite">Confidentialité</a></li><li><a href="#verifier">Vérifier un certificat</a></li></ul></div>
-      <div><h4>Suivez-nous</h4>
+      <div><h2>Plateforme</h2><ul><li><a href="#catalogue">Catalogue</a></li><li><a href="#ebooks">E-books</a></li><li><a href="#apropos">Qui est derrière l'agence</a></li><li><a href="#faq">FAQ</a></li><li><a href="#contact">Contact</a></li></ul></div>
+      <div><h2>Légal</h2><ul><li><a href="#cgv">CGV</a></li><li><a href="#cgu">Conditions d'utilisation</a></li><li><a href="#confidentialite">Confidentialité</a></li><li><a href="#verifier">Vérifier un certificat</a></li></ul></div>
+      <div><h2>Suivez-nous</h2>
         <div class="socials">
           <a href="https://www.instagram.com/newelite_agency/" target="_blank" rel="noopener" aria-label="Instagram @newelite_agency"><svg viewBox="0 0 24 24"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4zM17.3 5.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zM12 2c-2.7 0-3.1 0-4.1.1C3.9 2.3 2.3 4 2.1 7.9 2 9 2 9.3 2 12s0 3.1.1 4.1c.2 3.9 1.9 5.6 5.8 5.8 1 .1 1.4.1 4.1.1s3.1 0 4.1-.1c3.9-.2 5.6-1.9 5.8-5.8.1-1 .1-1.4.1-4.1s0-3.1-.1-4.1c-.2-3.9-1.9-5.6-5.8-5.8C15.1 2 14.7 2 12 2zm0 1.8c2.7 0 3 0 4 .1 2.8.1 4 1.4 4.1 4.1.1 1 .1 1.3.1 4s0 3-.1 4c-.1 2.7-1.4 4-4.1 4.1-1 .1-1.3.1-4 .1s-3 0-4-.1c-2.8-.1-4-1.4-4.1-4.1-.1-1-.1-1.3-.1-4s0-3 .1-4c.1-2.7 1.4-4 4.1-4.1 1-.1 1.3-.1 4-.1z"/></svg></a>
           <a href="https://www.instagram.com/neamindset/" target="_blank" rel="noopener" aria-label="Instagram @neamindset"><svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.9L22 9.6l-5.4 4.8L18.2 22 12 18.3 5.8 22l1.6-7.6L2 9.6l7.1-.7z"/></svg></a>
@@ -58,9 +58,12 @@
 <div class="modal" id="modal" hidden role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
 <div class="toast" id="toast" hidden role="status"></div>
 
+<!-- 3D : Three.js et GSAP viennent du CDN, versions figées. Ils ne sont téléchargés que sur l'accueil (scene3d/boot.js). -->
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/","gsap":"https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js","gsap/ScrollTrigger":"https://cdn.jsdelivr.net/npm/gsap@3.12.5/ScrollTrigger.js"}}</script>
 <script src="app1.js"></script>
 <script src="app2.js"></script>
 <script src="app3.js"></script>
 <script src="app4.js"></script>
+<script type="module" src="scene3d/boot.js"></script>
 </body>
 </html>

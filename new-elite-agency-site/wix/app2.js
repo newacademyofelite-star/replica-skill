@@ -17,10 +17,15 @@
   }
 
   function vHome() {
-    return '<section class="hero view"><div class="wrap hero-in">' + heroMonogram() +
+    // Tour 3D : la scène vit dans #towerStage (scene3d/boot.js). Le texte de chaque étage reste du vrai HTML par-dessus.
+    // Sans WebGL, le monogramme SVG de .stage-fallback reste affiché à la place.
+    return '<div class="tower view"><div class="tower-stage" id="towerStage" aria-hidden="true"><div class="stage-fallback">' + heroMonogram() + '</div></div>' +
+      '<div class="tower-floors"><section class="floor" data-floor="1"><div class="wrap floor-in">' +
       '<p class="motto">EXCELLENCE <i>•</i> STRATÉGIE <i>•</i> RÉSULTATS</p>' +
-      '<h1>' + t("heroT") + '</h1><p class="lead">' + t("heroL") + '</p>' +
-      '<div class="row center"><a class="btn gold" href="' + (S.logged ? "#espace" : "#connexion") + '">' + t("cta1") + '</a><a class="btn ghost" href="#catalogue">' + t("cta2") + '</a></div>' +
+      '<h1>' + t("heroT") + '</h1>' +
+      '<div class="row center"><a class="btn gold" href="#catalogue">' + t("cta3") + '</a><a class="btn ghost on-dark" href="' + (S.logged ? "#espace" : "#connexion") + '">' + t("cta1") + '</a></div>' +
+      '</div></section></div></div>' +
+      '<section class="block" style="padding-bottom:0"><div class="wrap hero-in" style="padding-block:0"><p class="lead">' + t("heroL") + '</p>' +
       '<div class="proof"><div><strong>2 418</strong><span>Étudiants</span></div><div><strong>31 560</strong><span>Vidéos terminées</span></div><div><strong>642</strong><span>Certificats délivrés</span></div><div><strong>4,8/5</strong><span>Avis vérifiés</span></div></div>' +
       '<p class="demo-flag">Chiffres de démonstration</p></div></section>' +
       '<section class="block"><div class="wrap"><div class="head c"><span class="eyebrow both">Catégories</span><h2>' + t("catsT") + '</h2></div><div class="cats">' +

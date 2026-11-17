@@ -6,7 +6,7 @@
   --surface-2: #F2F0EA;
   --ink: #0A0A0A;
   --ink-2: #4B4A46;
-  --muted: #7E7B73;
+  --muted: #6B6861; /* AA : 5,3:1 sur le fond clair */
   --line: #E4E1D8;
   --gold: #C9A24A;
   --gold-ink: #8A6A22;
@@ -126,6 +126,32 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .proof strong { font-family: var(--display); font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .proof span { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
 
+/* Tour 3D (accueil) : scène collée en fond, étages de texte par-dessus. Toujours noir et or, quel que soit le thème. */
+.tower { --hdr: 71px; --floor-h: calc(100vh - var(--hdr)); position: relative; background: #0A0A0A; color: #FAFAF8; }
+@supports (height: 100svh) { .tower { --floor-h: calc(100svh - var(--hdr)); } }
+.tower-stage { position: sticky; top: var(--hdr); height: var(--floor-h); overflow: hidden; background: radial-gradient(70% 55% at 50% 30%, #1b1810 0%, #0A0A0A 70%); }
+.stage-fallback { position: absolute; inset: 0; display: grid; place-items: start center; padding-top: 7vh; transition: opacity .9s ease; }
+.stage-fallback .monogram { width: min(240px, 52vw, 36vh); color: #FAFAF8; }
+.ne-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.2s ease; }
+.tower-stage[data-mode="3d"] .ne-canvas { opacity: 1; }
+.tower-stage[data-mode="3d"] .stage-fallback, .tower-stage[data-mode="loading"] .stage-fallback { opacity: 0; }
+.tower-floors { position: relative; margin-top: calc(-1 * var(--floor-h)); }
+.floor { min-height: var(--floor-h); display: grid; align-content: end; background: linear-gradient(to top, rgba(10,10,10,.92) 0%, rgba(10,10,10,.55) 26%, rgba(10,10,10,0) 52%); }
+.floor-in { display: grid; justify-items: center; text-align: center; gap: 22px; padding-block: 0 max(40px, 7vh); }
+.floor h1 { font-size: clamp(28px, 4.6vw, 52px); max-width: 20ch; }
+@media (max-width: 620px) { .floor .motto { font-size: 11px; letter-spacing: .2em; gap: 4px 8px; } }
+.floor h1 em { font-family: var(--accent-serif); font-style: italic; font-weight: 600; letter-spacing: 0; color: #E8CF85; }
+.btn.ghost.on-dark { color: #FAFAF8; border-color: rgba(250,250,248,.4); }
+.btn.ghost.on-dark:hover { border-color: #FAFAF8; }
+.ne-intro { position: absolute; inset: 0; background: #0A0A0A; display: grid; place-items: start center; padding-top: 16vh; transition: opacity .8s ease; }
+.ne-intro.out { opacity: 0; }
+.ne-intro-in { display: grid; justify-items: center; gap: 18px; }
+.ne-intro-label { font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: #B9B5AB; }
+.ne-bars { display: flex; align-items: flex-end; gap: 7px; height: 84px; }
+.ne-bars i { width: 10px; border-radius: 1px; background: #2A2925; transition: background .5s ease; }
+.ne-bars i.on { background: var(--gold-grad); }
+.ne-bars i:nth-child(1) { height: 24%; } .ne-bars i:nth-child(2) { height: 43%; } .ne-bars i:nth-child(3) { height: 62%; } .ne-bars i:nth-child(4) { height: 81%; } .ne-bars i:nth-child(5) { height: 100%; }
+
 section.block { padding-block: 80px; }
 .head { display: grid; gap: 12px; margin-bottom: 36px; max-width: 760px; }
 .head.c { justify-items: center; text-align: center; margin-inline: auto; }
@@ -238,13 +264,16 @@ details.faq p { margin-top: 10px; color: var(--ink-2); font-size: 15px; }
 .notice.err { background: var(--danger-bg); color: var(--danger); }
 .notice.gold { background: var(--gold-soft); color: var(--ink); }
 
+/* Réserve la hauteur du contenu : le pied de page ne saute pas si la page s'affiche en deux temps. */
+#app { min-height: calc(100vh - 71px); }
+
 /* Footer */
 .site-footer { background: var(--night); color: var(--night-text); padding-block: 60px 28px; }
 .foot { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 36px; }
 .foot > * { min-width: 0; }
 .site-footer .brand b { color: #fff; }
 .site-footer .brand small { color: var(--night-text); }
-.site-footer h4 { font-family: var(--body); font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: #fff; margin-bottom: 14px; }
+.site-footer h2 { font-family: var(--body); font-size: 11px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: #fff; margin-bottom: 14px; }
 .site-footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; font-size: 14px; }
 .site-footer a { color: var(--night-text); text-decoration: none; }
 .site-footer a:hover { color: #fff; }
