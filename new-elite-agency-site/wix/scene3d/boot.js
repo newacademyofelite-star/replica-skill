@@ -1,5 +1,6 @@
-// Point d'entrée 3D. Léger : ne charge Three.js que sur l'accueil, et seulement si l'appareil peut l'afficher.
+// Point d'entrée 3D. Léger : ne charge Three.js que sur l'accueil et la connexion, et seulement si l'appareil peut l'afficher.
 // Expose window.NE3D = { mount(stage), unmount() } ; app4.js l'appelle à chaque changement de page.
+// stage.dataset.scene vaut "tower" (accueil, 6 étages) ou "login" (décor léger).
 import { createIntro } from "./intro.js";
 
 const param = new URLSearchParams(location.search).get("3d"); // ?3d=on force la 3D, ?3d=off force la version 2D
@@ -42,6 +43,21 @@ function afterFirstPaint() {
 function fallback(stage, why) {
   stage.dataset.mode = "2d";
   if (why) console.info("[NE3D] version 2D : " + why);
+  if (stage.dataset.scene === "tower") ambientVideo(stage);
+}
+
+// Version 2D : si 3d/ambiance.mp4 a été déposé, il tourne en fond, muet et en boucle (jamais en mouvements réduits).
+async function ambientVideo(stage) {
+  const box = stage.querySelector(".stage-fallback");
+  if (!box || box.querySelector("video") || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const url = new URL("../3d/ambiance.mp4", import.meta.url).href;
+  try { if (!(await fetch(url, { method: "HEAD" })).ok) return; } catch (e) { return; }
+  const v = document.createElement("video");
+  Object.assign(v, { src: url, muted: true, loop: true, autoplay: true, playsInline: true });
+  v.setAttribute("aria-hidden", "true");
+  v.poster = new URL("../3d/ambiance.jpg", import.meta.url).href;
+  v.className = "stage-video";
+  box.prepend(v);
 }
 
 async function mount(stage) {
@@ -49,13 +65,14 @@ async function mount(stage) {
   if (!stage) return;
   const my = ++token;
   if (!canRun()) return fallback(stage, "appareil ou réglage non compatible");
+  const isTower = stage.dataset.scene !== "login";
   stage.dataset.mode = "loading";
-  const intro = createIntro(stage, !introShown);
+  const intro = createIntro(stage, isTower && !introShown);
   const timer = setTimeout(() => { if (my === token && stage.dataset.mode === "loading") { unmount(); intro.remove(); fallback(stage, "chargement trop long"); } }, LOAD_TIMEOUT);
   try {
     await afterFirstPaint(); // le texte de la page s'affiche d'abord, la 3D ensuite
     if (my !== token) return intro.remove();
-    const core = await import("./core.js");
+    const core = await import(isTower ? "./core.js" : "./login.js");
     if (my !== token) return intro.remove();
     intro.set(0.2);
     const handle = await core.start(stage, Object.assign(prefs(), {
@@ -65,7 +82,7 @@ async function mount(stage) {
     if (my !== token) { handle.dispose(); return intro.remove(); }
     current = handle;
     stage.dataset.mode = "3d";
-    introShown = true;
+    if (isTower) introShown = true;
     intro.done();
   } catch (e) {
     console.warn("[NE3D]", e);
@@ -81,4 +98,4 @@ function unmount() {
 
 window.NE3D = { mount, unmount };
 // Les scripts classiques ont déjà rendu la page : on monte la scène si l'accueil est affiché.
-mount(document.getElementById("towerStage"));
+mount(document.getElementById("towerStage") || document.getElementById("loginStage"));

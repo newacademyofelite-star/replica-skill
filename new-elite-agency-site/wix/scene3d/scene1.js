@@ -2,28 +2,16 @@
 // Les barres en escalier s'élèvent comme un immeuble. Or métallique, reflet doux, fines particules dorées.
 import * as THREE from "three";
 import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
+import { TAN_HALF_FOV, clamp01, easeOut, easeInOut } from "./studio.js";
 
 const UNIT = 0.02;      // 1 unité SVG = 0,02 unité de scène
 const BASE = 140;       // ligne de sol dans le SVG (y)
 const CENTER_X = 130;   // milieu du viewBox
 const DEPTH = 10;       // épaisseur de l'extrusion, en unités SVG
 const LOGO_H = (BASE - 14) * UNIT;
-const TAN_HALF_FOV = Math.tan(THREE.MathUtils.degToRad(16));
-const ORDER = ["bar-1", "bar-2", "bar-3", "bar-4", "bar-5", "letter-n", "letter-e"];
+const ORDER = ["bar-1", "bar-2", "bar-3", "bar-4", "bar-5", "letter-n", "letter-e"]; // ordre d'apparition
 
-const clamp01 = (x) => Math.min(1, Math.max(0, x));
-const easeOut = (t) => 1 - Math.pow(1 - t, 3);
-const easeInOut = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-
-function dotTexture() {
-  const c = document.createElement("canvas"); c.width = c.height = 32;
-  const g = c.getContext("2d"), grad = g.createRadialGradient(16, 16, 0, 16, 16, 16);
-  grad.addColorStop(0, "rgba(255,255,255,1)"); grad.addColorStop(1, "rgba(255,255,255,0)");
-  g.fillStyle = grad; g.fillRect(0, 0, 32, 32);
-  return new THREE.CanvasTexture(c);
-}
-
-export async function buildScene1({ scene, camera, mobile, reduced }) {
+export async function buildScene1({ scene, reduced }) {
   const res = await fetch(new URL("../3d/logo-ne.svg", import.meta.url));
   if (!res.ok) throw new Error("logo-ne.svg introuvable");
   const svg = new SVGLoader().parse(await res.text());
@@ -75,25 +63,8 @@ export async function buildScene1({ scene, camera, mobile, reduced }) {
   fill.position.set(3, 4, 9);
   group.add(key, key.target, rim, fill);
 
-  // Fines particules dorées qui montent lentement.
-  const count = mobile ? 140 : 380;
-  const pos = new Float32Array(count * 3), speed = new Float32Array(count);
-  for (let i = 0; i < count; i++) {
-    pos[i * 3] = (Math.random() - 0.5) * 16;
-    pos[i * 3 + 1] = 0.1 + Math.random() * 5.5;
-    pos[i * 3 + 2] = -6 + Math.random() * 10;
-    speed[i] = 0.05 + Math.random() * 0.12;
-  }
-  const dustGeo = new THREE.BufferGeometry();
-  dustGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  const dustTex = dotTexture();
-  const dustMat = new THREE.PointsMaterial({ color: 0xe8cf85, map: dustTex, size: 0.05, transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending, depthWrite: false });
-  group.add(new THREE.Points(dustGeo, dustMat));
-  disposables.push(dustGeo, dustMat, dustTex);
-
   // Cadrage : la caméra recule sur écran étroit pour garder le monogramme entier.
   let dist = 9, targetY = 0.6;
-  const target = new THREE.Vector3();
   function layout(aspect) {
     dist = Math.max(11, 3.6 / (TAN_HALF_FOV * aspect));
     const visibleH = 2 * dist * TAN_HALF_FOV;
@@ -101,37 +72,35 @@ export async function buildScene1({ scene, camera, mobile, reduced }) {
     scene.fog = new THREE.Fog(0x0a0a0a, dist + 2, dist + 34);
   }
 
-  let lastT = 0;
-  function update(t, state) {
-    const dt = Math.max(0, Math.min(0.1, t - lastT)); lastT = t;
-    // Les formes s'élèvent une à une, de la plus petite barre aux lettres.
+  // Les formes s'élèvent une à une, de la plus petite barre aux lettres.
+  function update(t) {
     for (const p of parts) {
       const k = reduced ? 1 : easeOut(clamp01((t - 0.4 - p.delay) / 1.6));
       for (const pivot of p.pivots) { pivot.visible = k > 0.001; pivot.scale.y = Math.max(k, 0.001); }
     }
-    if (!reduced) {
-      const a = dustGeo.attributes.position;
-      for (let i = 0; i < count; i++) {
-        let y = a.array[i * 3 + 1] + speed[i] * dt;
-        if (y > 5.6) y = 0.1;
-        a.array[i * 3 + 1] = y;
-      }
-      a.needsUpdate = true;
-    }
-    // Caméra : approche lente à l'arrivée, léger balancement, puis descente au défilement.
+  }
+
+  // Point de vue de l'étage 1 : approche lente à l'arrivée, puis léger balancement.
+  function view(t) {
     const k = reduced ? 1 : easeInOut(clamp01(t / 3.6));
-    const f = reduced ? 0 : state.fs;
     const sway = reduced ? 0 : Math.sin(t * 0.17) * 0.035 * dist;
-    const x = THREE.MathUtils.lerp(-0.3 * dist, 0.16 * dist, k) + sway;
-    const y = THREE.MathUtils.lerp(0.35, targetY + 0.19 * dist, k) + 0.5 * f;
-    const z = THREE.MathUtils.lerp(1.22 * dist, dist, k) * (1 - 0.22 * f);
-    camera.position.set(x, Math.max(0.25, y), z);
-    target.set(0, targetY - 0.9 * f, 0);
-    camera.lookAt(target);
+    return {
+      pos: new THREE.Vector3(THREE.MathUtils.lerp(-0.3 * dist, 0.16 * dist, k) + sway, Math.max(0.25, THREE.MathUtils.lerp(0.35, targetY + 0.19 * dist, k)), THREE.MathUtils.lerp(1.22 * dist, dist, k)),
+      target: new THREE.Vector3(0, targetY, 0)
+    };
+  }
+
+  // Point de vue final : retour sur le monogramme, plus large et de l'autre côté.
+  function finalView(t) {
+    const sway = reduced ? 0 : Math.sin(t * 0.17) * 0.03 * dist;
+    return {
+      pos: new THREE.Vector3(-0.22 * dist + sway, targetY + 0.3 * dist, 1.18 * dist),
+      target: new THREE.Vector3(0, targetY + 0.15, 0)
+    };
   }
 
   return {
-    update, layout,
+    group, update, layout, view, finalView,
     dispose() { scene.remove(group); disposables.forEach((d) => d.dispose()); }
   };
 }

@@ -17,29 +17,40 @@
   }
 
   function vHome() {
-    // Tour 3D : la scène vit dans #towerStage (scene3d/boot.js). Le texte de chaque étage reste du vrai HTML par-dessus.
-    // Sans WebGL, le monogramme SVG de .stage-fallback reste affiché à la place.
-    return '<div class="tower view"><div class="tower-stage" id="towerStage" aria-hidden="true"><div class="stage-fallback">' + heroMonogram() + '</div></div>' +
-      '<div class="tower-floors"><section class="floor" data-floor="1"><div class="wrap floor-in">' +
-      '<p class="motto">EXCELLENCE <i>•</i> STRATÉGIE <i>•</i> RÉSULTATS</p>' +
-      '<h1>' + t("heroT") + '</h1>' +
-      '<div class="row center"><a class="btn gold" href="#catalogue">' + t("cta3") + '</a><a class="btn ghost on-dark" href="' + (S.logged ? "#espace" : "#connexion") + '">' + t("cta1") + '</a></div>' +
-      '</div></section></div></div>' +
+    // Tour 3D : la scène vit dans #towerStage (scene3d/boot.js), un étage par <section class="floor">.
+    // Le texte de chaque étage reste du vrai HTML par-dessus ; sans WebGL, il s'affiche seul sur fond noir.
+    var top5 = board().slice(0, 5), week = boardFor("semaine")[0], month = boardFor("mois")[0];
+    var shown = function (r) { return r.me ? esc(r.n) + " (vous)" : esc(r.n); };
+    var floor = function (n, side, inner) { return '<section class="floor' + (side ? " floor-side" : "") + '" data-floor="' + n + '" aria-labelledby="floor' + n + '"><div class="wrap floor-in">' + inner + '</div></section>'; };
+    return '<div class="tower view"><div class="tower-stage" id="towerStage" data-scene="tower" aria-hidden="true"><div class="stage-fallback">' + heroMonogram() + '</div></div>' +
+      '<div class="tower-floors">' +
+      floor(1, false, '<p class="motto">EXCELLENCE <i>•</i> STRATÉGIE <i>•</i> RÉSULTATS</p>' +
+        '<h1 id="floor1">' + t("heroT") + '</h1>' +
+        '<div class="row center"><a class="btn gold" href="#catalogue">' + t("cta3") + '</a><a class="btn ghost on-dark" href="' + (S.logged ? "#espace" : "#connexion") + '">' + t("cta1") + '</a></div>') +
+      floor(2, true, '<div class="floor-panel"><span class="eyebrow">Étage 2 · Formations</span><h2 id="floor2">Cinq disciplines, un même niveau d\'exigence.</h2>' +
+        '<ul class="floor-list">' + CATS.map(function (c) { var co = course(c.id); return '<li><a class="floor-link" data-course="' + c.id + '" href="#f-' + c.id + '"><strong>' + c.name + '</strong><span>' + co.level + ' · ' + co.lessons.length + ' vidéos · ' + eur(co.price) + '</span></a></li>'; }).join("") + '</ul></div>') +
+      floor(3, true, '<div class="floor-panel"><span class="eyebrow">Étage 3 · E-books et vidéos</span><h2 id="floor3">Lisez, regardez, appliquez.</h2>' +
+        '<p>Des e-books à lire en ligne ou hors ligne, des vidéos qui se débloquent une à une, avec un quiz à chaque étape.</p>' +
+        '<div class="row"><a class="btn gold sm" href="#ebooks">Voir les e-books</a><a class="btn ghost sm on-dark" href="#v-marketing-0">Vidéo d\'essai gratuite</a></div></div>') +
+      floor(4, true, '<div class="floor-panel"><span class="eyebrow">Étage 4 · Niveaux</span><h2 id="floor4">Cinq niveaux, d\'Aspirant à Élite.</h2>' +
+        '<div class="lvl-list" role="group" aria-label="Niveaux">' + LEVELS.map(function (l, i) { return '<button type="button" class="lvl-btn" data-act="lvl" data-level="' + i + '" aria-pressed="' + (i === 0) + '">' + stairs(i + 1) + '<span>' + l.name + '</span></button>'; }).join("") + '</div>' +
+        '<p class="lvl-perks" id="lvlPerks" aria-live="polite">' + levelPerks(0) + '</p></div>') +
+      floor(5, true, '<div class="floor-panel"><span class="eyebrow">Étage 5 · Classement</span><h2 id="floor5">Le top 5 de la tour.</h2>' +
+        '<ol class="floor-rank">' + top5.map(function (r) { return '<li><strong>' + shown(r) + '</strong><span>' + r.p.toLocaleString("fr-FR") + ' pts · ' + LEVELS[levelIdx(r.p)].name + '</span></li>'; }).join("") + '</ol>' +
+        '<p class="floor-stars"><span>Étudiant de la semaine : <strong>' + shown(week) + '</strong></span><span>Étudiant du mois : <strong>' + shown(month) + '</strong></span></p>' +
+        '<a class="btn ghost sm on-dark" href="#classement">Voir le classement</a></div>') +
+      floor(6, false, '<p class="motto">EXCELLENCE <i>•</i> STRATÉGIE <i>•</i> RÉSULTATS</p><h2 id="floor6" class="floor-final">Votre place est en haut de la tour.</h2>' +
+        '<div class="row center"><a class="btn gold" href="#catalogue">' + t("cta3") + '</a><a class="btn ghost on-dark" href="' + (S.logged ? "#espace" : "#connexion") + '">' + t("cta1") + '</a></div>') +
+      '</div></div>' +
       '<section class="block" style="padding-bottom:0"><div class="wrap hero-in" style="padding-block:0"><p class="lead">' + t("heroL") + '</p>' +
       '<div class="proof"><div><strong>2 418</strong><span>Étudiants</span></div><div><strong>31 560</strong><span>Vidéos terminées</span></div><div><strong>642</strong><span>Certificats délivrés</span></div><div><strong>4,8/5</strong><span>Avis vérifiés</span></div></div>' +
       '<p class="demo-flag">Chiffres de démonstration</p></div></section>' +
-      '<section class="block"><div class="wrap"><div class="head c"><span class="eyebrow both">Catégories</span><h2>' + t("catsT") + '</h2></div><div class="cats">' +
-      CATS.map(function (c) { return '<a class="card cat" href="#catalogue" data-act="cat" data-id="' + c.id + '"><span class="glyph">' + c.g + '</span><h3>' + c.name + '</h3><p>' + c.d + '</p></a>'; }).join("") + '</div></div></section>' +
-      '<section class="block" style="padding-top:0"><div class="wrap"><div class="head"><span class="eyebrow">Formations vidéo</span><h2>Les parcours les plus suivis</h2><p class="lead">Un prix unique par formation, des vidéos qui se débloquent une à une, un quiz pour valider chaque étape et un certificat à la fin.</p></div><div class="grid3">' +
-      COURSES.slice(0, 3).map(courseCard).join("") + '</div><div class="row center" style="margin-top:28px"><a class="btn ghost" href="#catalogue">Tout le catalogue</a></div></div></section>' +
-      '<section class="block" style="background:var(--surface);border-block:1px solid var(--line)"><div class="wrap"><div class="head"><span class="eyebrow">' + t("freeT") + '</span><h2>3 vidéos et 3 e-books offerts</h2><p class="lead">Regardez la première vidéo de nos trois formations phares sans payer. Les e-books gratuits se téléchargent dès la création de votre compte.</p></div>' +
+      '<section class="block"><div class="wrap"><div class="head"><span class="eyebrow">' + t("freeT") + '</span><h2>3 vidéos et 3 e-books offerts</h2><p class="lead">Regardez la première vidéo de nos trois formations phares sans payer. Les e-books gratuits se téléchargent dès la création de votre compte.</p></div>' +
       '<div class="books">' + EBOOKS.filter(function (e) { return e.price === 0; }).map(bookCard).join("") +
       COURSES.filter(function (c) { return FREE_LESSONS[c.id] !== undefined; }).map(function (c) { return '<a class="card book" href="#v-' + c.id + '-0" style="text-decoration:none"><div class="cover" style="justify-content:center;align-items:center;text-align:center;gap:14px"><small>Vidéo d\'essai</small><span class="play">' + '<svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span><h4>' + c.lessons[0].t + '</h4></div><div class="book-body"><span class="small muted">' + cat(c.cat).name + ' · ' + c.lessons[0].m + ' min</span><div class="between"><span class="chip ok">Gratuit</span><span class="link">Regarder</span></div></div></a>'; }).join("") +
-      '</div></div></section>' +
-      '<section class="block"><div class="wrap about-grid"><div><p class="quote big-quote">« On ne forme pas des spectateurs. On forme des gens qui livrent. »</p><p class="small muted" style="margin-top:14px;letter-spacing:.14em;text-transform:uppercase">Fondateur, New Elite Agency</p></div>' +
-      '<div><span class="eyebrow">Progression</span><h2 style="font-size:clamp(24px,3vw,34px);margin-top:12px">Cinq niveaux, de Aspirant à Élite.</h2><p class="lead" style="margin-top:12px">Chaque vidéo terminée, chaque e-book lu et chaque réponse jugée utile vous rapporte des points. Les barres du monogramme se remplissent à chaque niveau, avec des avantages concrets.</p>' +
-      '<div class="row" style="margin-top:22px;gap:18px">' + LEVELS.map(function (l, i) { return '<div style="display:grid;justify-items:center;gap:6px">' + medal(i, 56) + '<span class="small">' + l.name + '</span></div>'; }).join("") + '</div></div></div></section>';
+      '</div></div></section>';
   }
+  function levelPerks(i) { return '<strong>' + LEVELS[i].name + '</strong> · dès ' + LEVELS[i].min.toLocaleString("fr-FR") + ' pts : ' + LEVELS[i].perks.join(", ") + '.'; }
 
   var filter = { cat: "all", type: "all", q: "" };
   function vCatalog(onlyEbooks) {
@@ -118,7 +129,7 @@
 
   /* ================= Connexion + accueil 3 écrans ================= */
   function vLogin() {
-    return '<section class="block view"><div class="wrap" style="max-width:460px"><div class="card form" style="grid-template-columns:1fr"><div style="display:grid;justify-items:center;gap:10px;text-align:center"><svg viewBox="0 0 64 64" width="56" height="56">' + logoSvg() + '</svg><span class="eyebrow both">Espace membre</span><h2 style="font-size:26px">Connexion</h2></div>' +
+    return '<section class="block view login-hero"><div class="login-stage" id="loginStage" data-scene="login" aria-hidden="true"></div><div class="wrap" style="max-width:460px;position:relative"><div class="card form" style="grid-template-columns:1fr"><div style="display:grid;justify-items:center;gap:10px;text-align:center"><svg viewBox="0 0 64 64" width="56" height="56">' + logoSvg() + '</svg><span class="eyebrow both">Espace membre</span><h2 style="font-size:26px">Connexion</h2></div>' +
       '<div class="field"><label for="l-mail">E-mail</label><input id="l-mail" type="email" value="ama@exemple.com" autocomplete="username"></div><div class="field"><label for="l-pw">Mot de passe</label><input id="l-pw" type="password" value="elite2026" autocomplete="current-password"></div>' +
       '<button class="btn gold block" data-act="login" data-role="student">Se connecter</button><button class="btn ghost block" data-act="login" data-role="admin">Connexion administrateur (démo)</button>' +
       '<div class="row" style="justify-content:space-between"><button class="link" data-act="forgot">Mot de passe oublié</button><button class="link" data-act="login" data-role="student" data-new="1">Créer un compte</button></div>' +

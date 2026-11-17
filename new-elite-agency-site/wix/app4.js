@@ -115,7 +115,7 @@
     header(h);
     $("mobileMenu").classList.remove("open"); $("menuBtn").setAttribute("aria-expanded", "false");
     bindPlayer();
-    if (window.NE3D && $("towerStage")) window.NE3D.mount($("towerStage"));
+    var stage3d = $("towerStage") || $("loginStage"); if (window.NE3D && stage3d) window.NE3D.mount(stage3d);
     var q = $("q"); if (q) q.oninput = function () { filter.q = this.value; var pos = this.selectionStart; render2.keepType = true; var hh = location.hash; $("app").innerHTML = vCatalog(hh === "#ebooks"); var nq = $("q"); nq.focus(); nq.setSelectionRange(pos, pos); nq.oninput = q.oninput; };
     bindForms();
   }
@@ -144,6 +144,9 @@
     var act = a.dataset.act, id = a.dataset.id;
     switch (act) {
       case "close": closeModal(); break;
+      case "lvl":
+        var lv = +a.dataset.level; document.querySelectorAll(".lvl-btn").forEach(function (x) { x.setAttribute("aria-pressed", x === a); });
+        $("lvlPerks").innerHTML = levelPerks(lv); a.dispatchEvent(new CustomEvent("ne:level", { detail: lv, bubbles: true })); break;
       case "cat": filter.cat = id; if (location.hash === "#catalogue" || location.hash === "#ebooks") { e.preventDefault(); render2.keepType = true; render2(); } break;
       case "type": filter.type = id; render2.keepType = true; if (location.hash === "#ebooks" && id !== "ebook") location.hash = "catalogue"; else render2(); break;
       case "buy": e.preventDefault(); buy(a.dataset.kind, id); break;

@@ -117,9 +117,15 @@
       '<div><h2 style="font-size:20px;margin-bottom:12px">Votre certificat (aperçu)</h2><div class="cert">' + medal(4, 64) + '<span class="eyebrow both">Certificat de réussite</span><h3>MARKETING DIGITAL : VENDRE EN LIGNE</h3><p class="muted small">décerné à</p><p class="name">' + esc(S.usePseudo ? S.pseudo : "Ama Mensah") + '</p><p class="small muted">N° NE-CERT-2026-000184 · Vérifiable sur newelite.agency/verifier</p><p class="motto" style="font-size:10px">EXCELLENCE <i>•</i> STRATÉGIE <i>•</i> RÉSULTATS</p></div><p class="small muted" style="margin-top:8px">Délivré automatiquement à 100 % de la formation.</p></div>');
   }
   var boardTab = "semaine";
+  // Classement par période (données de démonstration) : points gagnés sur la semaine ou le mois, ou total général.
+  function boardFor(tab) {
+    var b = board();
+    var k = { semaine: [0.04, 0.1, 0.11, 0.2, 0.06, 0.04, 0.07, 0.03, 0.05, 0.02], mois: [0.22, 0.3, 0.25, 0.34, 0.2, 0.18, 0.28, 0.15, 0.2, 0.1] }[tab];
+    if (!k) return b;
+    return b.map(function (r, i) { return { n: r.n, p: Math.round(r.p * k[i]), me: r.me }; }).sort(function (a, z) { return z.p - a.p; });
+  }
   function vBoard() {
-    var b = board(); if (boardTab === "semaine") b = b.map(function (r, i) { return { n: r.n, p: Math.round(r.p * [0.05, 0.08, 0.11, 0.2, 0.06, 0.04, 0.07, 0.03, 0.05, 0.02][i]), me: r.me }; }).sort(function (a, z) { return z.p - a.p; });
-    if (boardTab === "mois") b = b.map(function (r, i) { return { n: r.n, p: Math.round(r.p * [0.22, 0.3, 0.25, 0.34, 0.2, 0.18, 0.28, 0.15, 0.2, 0.1][i]), me: r.me }; }).sort(function (a, z) { return z.p - a.p; });
+    var b = boardFor(boardTab);
     var gen = board();
     function lvOf(n) { for (var i = 0; i < gen.length; i++) if (gen[i].n === n) return levelIdx(gen[i].p); return 0; }
     return shell("classement", '<div class="main-head"><div><span class="eyebrow">Classement</span><h1 style="margin-top:8px">Les plus réguliers</h1><p>L\'étudiant de la semaine et celui du mois reçoivent un code promo.</p></div><div class="seg">' +

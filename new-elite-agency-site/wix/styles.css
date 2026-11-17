@@ -151,6 +151,52 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .ne-bars i { width: 10px; border-radius: 1px; background: #2A2925; transition: background .5s ease; }
 .ne-bars i.on { background: var(--gold-grad); }
 .ne-bars i:nth-child(1) { height: 24%; } .ne-bars i:nth-child(2) { height: 43%; } .ne-bars i:nth-child(3) { height: 62%; } .ne-bars i:nth-child(4) { height: 81%; } .ne-bars i:nth-child(5) { height: 100%; }
+.stage-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .55; }
+
+/* Étages 2 à 6 : la souris traverse le texte pour atteindre la scène, sauf sur les liens, boutons et panneaux. */
+.tower-floors { pointer-events: none; }
+.floor-in a, .floor-in button, .floor-panel { pointer-events: auto; }
+.floor.floor-side { align-content: center; background: linear-gradient(90deg, rgba(10,10,10,.88) 0%, rgba(10,10,10,.55) 38%, rgba(10,10,10,0) 60%); }
+.floor.floor-side .floor-in { width: 100%; justify-items: start; text-align: left; padding-block: 48px; }
+.floor-panel { max-width: 440px; display: grid; gap: 16px; }
+.floor h2 { font-size: clamp(26px, 3.4vw, 40px); }
+.floor h2.floor-final { font-size: clamp(28px, 4.6vw, 52px); max-width: 20ch; }
+.floor p { color: #D9D5CC; }
+.floor .eyebrow { color: #E8CF85; }
+.floor-list, .floor-rank { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.floor-link { display: grid; gap: 2px; padding: 10px 14px; border: 1px solid rgba(201,162,74,.28); border-radius: var(--r); color: #FAFAF8; text-decoration: none; transition: border-color .3s ease, background .3s ease; }
+.floor-link strong { font-family: var(--display); font-weight: 500; letter-spacing: .06em; }
+.floor-link span, .floor-rank span { font-size: 13px; color: #B9B5AB; font-variant-numeric: tabular-nums; }
+.floor-link:hover, .floor-link:focus-visible { border-color: #C9A24A; background: rgba(201,162,74,.08); }
+.lvl-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.lvl-btn { display: inline-flex; align-items: flex-end; gap: 8px; padding: 8px 12px; border: 1px solid rgba(201,162,74,.28); border-radius: var(--r); background: transparent; color: #FAFAF8; font-size: 14px; transition: border-color .3s ease, background .3s ease; }
+.lvl-btn .stairs { height: 16px; }
+.lvl-btn .stairs i { background: #3A3428; }
+.lvl-btn .stairs i.on { background: var(--gold-grad); }
+.lvl-btn[aria-pressed="true"], .lvl-btn:hover { border-color: #C9A24A; background: rgba(201,162,74,.12); }
+.lvl-perks { font-size: 15px; min-height: 3.2em; }
+.lvl-perks strong, .floor-stars strong { color: #E8CF85; font-weight: 600; }
+.floor-rank { counter-reset: r; }
+.floor-rank li { counter-increment: r; display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid rgba(201,162,74,.18); }
+.floor-rank li strong { font-weight: 500; }
+.floor-rank li strong::before { content: counter(r) ". "; color: #E8CF85; font-family: var(--display); }
+.floor-stars { display: grid; gap: 4px; font-size: 14px; }
+@media (max-width: 820px) {
+  .floor.floor-side { align-content: end; background: linear-gradient(to top, rgba(10,10,10,.95) 0%, rgba(10,10,10,.8) 48%, rgba(10,10,10,0) 64%); }
+  .floor.floor-side .floor-in { padding-block: 0 28px; }
+  .floor-panel { max-width: none; gap: 12px; }
+  .floor-link { padding: 7px 12px; }
+}
+/* Fiche d'une formation au survol (étage 2). */
+.ne-card { position: absolute; transform: translate(-50%, -100%); min-width: 210px; max-width: 260px; padding: 12px 14px; display: grid; gap: 3px; background: rgba(10,10,10,.9); border: 1px solid rgba(201,162,74,.5); border-radius: var(--r); color: #FAFAF8; font-size: 13px; pointer-events: none; }
+.ne-card strong { font-family: var(--display); font-weight: 500; font-size: 15px; letter-spacing: .04em; }
+.ne-card span { color: #B9B5AB; }
+.ne-card .ne-card-cat, .ne-card .ne-card-go { color: #E8CF85; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+.ne-card .ne-card-price { color: #FAFAF8; font-weight: 600; }
+/* Connexion : décor 3D léger derrière le formulaire. */
+.login-hero { position: relative; background: #0A0A0A; overflow: hidden; }
+.login-stage { position: absolute; inset: 0; background: radial-gradient(60% 60% at 75% 40%, #1b1810 0%, #0A0A0A 70%); }
+.login-stage[data-mode="3d"] .ne-canvas { opacity: 1; }
 
 section.block { padding-block: 80px; }
 .head { display: grid; gap: 12px; margin-bottom: 36px; max-width: 760px; }

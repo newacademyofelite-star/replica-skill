@@ -1,5 +1,5 @@
 // Registre des modèles 3D attendus dans 3d/ (voir ASSETS.md). Tant qu'un fichier manque, une forme simple le remplace.
-// GLTFLoader et DRACOLoader ne sont téléchargés qu'au premier modèle demandé.
+// GLTFLoader et DRACOLoader ne sont téléchargés qu'au premier modèle trouvé.
 import * as THREE from "three";
 
 export const ASSETS = {
@@ -29,20 +29,28 @@ function getLoader() {
 
 export function assetUrl(file) { return new URL("../3d/" + file, import.meta.url).href; }
 
-// Forme simple dorée, à la taille d'un objet posé sur piédestal (≈ 1 unité).
-export function placeholder(material) {
-  return new THREE.Mesh(new THREE.BoxGeometry(0.7, 1, 0.7), material);
+// Remet un modèle à l'échelle commune : environ 1 unité de haut, centré, base sur y = 0.
+function normalize(model) {
+  const box = new THREE.Box3().setFromObject(model);
+  const size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
+  const s = size.y > 0 ? 1 / size.y : 1;
+  model.scale.setScalar(s);
+  model.position.set(-center.x * s, -box.min.y * s, -center.z * s);
+  const wrap = new THREE.Group(); wrap.add(model);
+  return wrap;
 }
 
-// Charge 3d/<fichier>. Renvoie la scène du modèle, ou la forme simple si le fichier est absent ou illisible.
-export async function loadModel(key, material) {
+// Charge 3d/<fichier>. Renvoie le modèle, ou fallback() si le fichier est absent ou illisible.
+export async function loadModel(key, fallback) {
   const file = ASSETS[key];
-  if (!file) return placeholder(material);
+  if (!file) return fallback();
   try {
     const head = await fetch(assetUrl(file), { method: "HEAD" });
-    if (!head.ok) return placeholder(material);
+    if (!head.ok) return fallback();
     const loader = await getLoader();
     const gltf = await loader.loadAsync(assetUrl(file));
-    return gltf.scene;
-  } catch (e) { return placeholder(material); }
+    const obj = normalize(gltf.scene);
+    obj.userData.fromFile = true;
+    return obj;
+  } catch (e) { return fallback(); }
 }

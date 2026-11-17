@@ -1,6 +1,6 @@
 # Assets 3D attendus
 
-Déposez chaque fichier dans `3d/` (à côté de `index.html`), avec exactement le nom indiqué. Tant qu'un fichier manque, la scène affiche une forme simple à sa place : rien ne casse.
+Déposez chaque fichier dans `3d/` (à côté de `index.html`), avec exactement le nom indiqué. Tant qu'un fichier manque, la scène affiche une forme simple à sa place : rien ne casse. Un modèle déposé est mis à l'échelle automatiquement.
 
 Contraintes pour chaque modèle `.glb` :
 - moins de 3 Mo par fichier, moins de 15 Mo pour l'ensemble de la scène ;
@@ -15,7 +15,7 @@ Style commun à ajouter à chaque prompt Higgsfield :
 
 | Fichier | Scène | Contenu | Prompt Higgsfield | État |
 | --- | --- | --- | --- | --- |
-| `logo-ne.svg` | 1 Accueil | Logo NE vectoriel, extrudé en 3D par la scène | Aucun : le vrai fichier du logo, pas une image générée | Provisoire, à remplacer |
+| `logo-ne.svg` | 1 et 6 | Logo NE vectoriel, extrudé en 3D par la scène | Aucun : le vrai fichier du logo, pas une image générée | Provisoire, à remplacer |
 | `pedestal.glb` | 2 Formations | Piédestal | A luxury black marble pedestal with thin polished gold trim | À fournir |
 | `trading.glb` | 2 Formations | Objet Trading | A sculpture of three ascending candlestick chart bars in polished gold | À fournir |
 | `marketing.glb` | 2 Formations | Objet Marketing Digital | A sleek polished gold megaphone | À fournir |
