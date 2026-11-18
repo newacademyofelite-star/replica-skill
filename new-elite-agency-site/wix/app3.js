@@ -129,7 +129,12 @@
     if (loadEbook.pending === e.id) return;
     loadEbook.pending = e.id;
     fetch(e.file).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (d) { EB_CACHE[e.id] = d; }, function () { EB_CACHE[e.id] = { error: true }; })
+      .then(function (d) {
+        // Les images du cours sont rangées à côté du fichier JSON (ebooks/img/…) : même origine que lui.
+        var base = e.file.slice(0, e.file.indexOf("ebooks/"));
+        if (base) { d.html = d.html.replace(/src="ebooks\//g, 'src="' + base + 'ebooks/'); d.answer = (d.answer || "").replace(/src="ebooks\//g, 'src="' + base + 'ebooks/'); }
+        EB_CACHE[e.id] = d;
+      }, function () { EB_CACHE[e.id] = { error: true }; })
       .then(function () { loadEbook.pending = null; if (location.hash === "#e-" + e.id) render2(); });
   }
   function vEbook(id) {
