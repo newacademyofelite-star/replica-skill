@@ -46,7 +46,7 @@
     var item, base, label;
     if (kind === "course") { item = course(id); base = item.price; label = item.title; }
     else if (kind === "ebook") { item = ebook(id); base = item.price; label = item.title; }
-    else { var paid = EBOOKS.filter(function (e) { return e.cat === id && e.price > 0; }); base = Math.round(paid.reduce(function (a, e) { return a + e.price; }, 0) * 0.75); label = "Pack " + cat(id).name; }
+    else { base = packFor(id).price; label = "Pack " + cat(id).name; }
     var lv = myLevel(), lvDisc = kind === "course" ? (lv >= 2 ? LEVEL_DISC[lv] : 0) : LEVEL_DISC[lv];
     var st = { promo: "", method: "card", plan: 1 };
     function calc() { var pd = PROMOS[st.promo] || 0, use = Math.max(pd, lvDisc), total = Math.round(base * (1 - use) * 100) / 100; return { pd: pd, use: use, total: total, src: use === 0 ? "" : pd >= lvDisc ? "Code " + st.promo : "Réduction " + LEVELS[lv].name }; }
@@ -175,6 +175,7 @@
       case "night": reader.night = !reader.night; render2(); break;
       case "dl": toast("Téléchargement du PDF disponible dans la version finale."); break;
       case "offline": toast("Dans la version finale, l'e-book sera enregistré pour une lecture hors ligne."); break;
+      case "ebretry": e.preventDefault(); delete EB_CACHE[id]; render2(); break;
       case "markread": if (S.readEb.indexOf(id) === -1) { S.readEb.push(id); S.pointsBase += 30; save(); toast("+30 points. Le volume suivant est débloqué."); } render2(); break;
       case "pseudo": S.usePseudo = a.checked; save(); render2(); break;
       case "msgs": S.msgs = a.checked; save(); break;

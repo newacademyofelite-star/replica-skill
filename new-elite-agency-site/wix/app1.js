@@ -116,6 +116,18 @@
   function cat(id) { return FORUM_CATS.filter(function (c) { return c.id === id; })[0]; }
   function mins(c) { return c.lessons.reduce(function (a, l) { return a + l.m; }, 0); }
   function hm(m) { return Math.floor(m / 60) + " h " + String(m % 60).padStart(2, "0"); }
+  // Durée totale d'une formation, ou rien si les durées ne sont pas connues (vidéos Drive).
+  function durSpan(c) { var m = mins(c); return m ? '<span>' + hm(m) + '</span>' : ""; }
+  // Prix d'un pack d'e-books : prix fixé (PACK_PRICE) ou −25 % sur la somme des e-books payants.
+  var PACK_PRICE = {};
+  function packFor(catId) {
+    var paid = EBOOKS.filter(function (e) { return e.cat === catId && e.price > 0; });
+    var sum = paid.reduce(function (a, e) { return a + e.price; }, 0);
+    return { paid: paid, sum: sum, price: PACK_PRICE[catId] || Math.round(sum * 0.75) };
+  }
+  // Modules d'une formation : ceux déclarés, sinon un seul module avec toutes les vidéos.
+  function modulesOf(c) { return c.modules || [{ t: "", from: 0, to: c.lessons.length - 1 }]; }
+  function moduleOf(c, i) { var ms = modulesOf(c); for (var k = 0; k < ms.length; k++) if (i >= ms[k].from && i <= ms[k].to) return k; return 0; }
   function mmss(s) { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
   function points() {
     return S.pointsBase;

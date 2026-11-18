@@ -8,30 +8,44 @@
       return '<section class="block view"><div class="wrap" style="max-width:620px;display:grid;gap:16px;justify-items:start"><span class="eyebrow">Contenu verrouillé</span><h2>' + c.lessons[i].t + '</h2><p class="muted">' + (owns(id) ? "Terminez la vidéo précédente et validez son quiz pour débloquer celle-ci." : "Cette vidéo fait partie de la formation complète.") + '</p><a class="btn gold" href="#f-' + id + '">Voir la formation</a></div></section>';
     }
     var l = c.lessons[i], dur = l.m * 60, key = id + ":" + i, done = doneList(id).indexOf(i) !== -1;
-    P = { id: id, i: i, dur: dur, pos: done ? DEMO_LEN : 0, seen: done ? DEMO_LEN : 0, playing: false, rate: 1, subs: true, timer: null, wm: null, quiz: false };
+    P = { id: id, i: i, dur: dur, pos: done ? DEMO_LEN : 0, seen: done ? DEMO_LEN : 0, playing: false, rate: 1, subs: true, timer: null, wm: null, quiz: false, src: l.src || null, watched: 0, done: done };
     if (owns(id)) { S.last = { c: id, i: i }; save(); }
     var chapters = [["Introduction", 0], ["La méthode", 0.25], ["Exemple concret", 0.55], ["À retenir", 0.85]];
     var notes = S.notes[key] || [];
-    var inner = '<div class="main-head"><div><span class="eyebrow">' + c.title + '</span><h1 style="margin-top:8px">' + (i + 1) + '. ' + l.t + '</h1></div>' + (!owns(id) ? '<span class="chip ok">Vidéo d\'essai gratuite</span>' : "") + '</div>' +
-      '<div class="player-layout"><div style="display:grid;gap:16px;min-width:0"><div class="player"><div class="screen" id="screen"><div class="slide"><span class="eyebrow both" style="color:#E8CF85;justify-self:center">' + cat(c.cat).name + '</span><h3>' + l.t + '</h3><p>Vidéo de démonstration · ' + l.m + ' min</p></div>' +
-      '<span class="wm" id="wm">' + esc(S.logged ? "Ama Mensah · ama@exemple.com" : "Visiteur · essai gratuit") + '</span><span class="caption" id="cap"></span><span class="pause-note" id="pauseNote" hidden>Lecture mise en pause : onglet inactif</span>' +
-      '<button class="play" id="bigPlay" aria-label="Lecture" style="position:absolute"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></button></div>' +
-      '<div class="controls"><button id="pp" aria-label="Lecture">▶</button><div class="track" id="track" aria-label="Progression"><span class="seen" id="seen"></span><span class="pos" id="pos"></span></div><span class="time" id="time">0:00 / ' + mmss(dur) + '</span>' +
-      '<select id="rate" aria-label="Vitesse"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select><button id="subs" aria-pressed="true">CC</button></div></div>' +
-      '<p class="small muted">Pas de téléchargement. Impossible d\'avancer au-delà de ce que vous avez déjà regardé. La vidéo est validée à 100 % de visionnage, puis par le quiz (2 bonnes réponses sur 3).</p>' +
-      '<div class="card panel"><div class="panel-h"><h2>Chapitres</h2></div><div class="chapters">' + chapters.map(function (ch) { return '<button data-act="chap" data-f="' + ch[1] + '">' + mmss(dur * ch[1]) + ' · ' + ch[0] + '</button>'; }).join("") + '</div></div>' +
+    var wm = '<span class="wm" id="wm">' + esc(S.logged ? "Ama Mensah · ama@exemple.com" : "Visiteur · essai gratuit") + '</span>';
+    var mod = c.modules ? modulesOf(c)[moduleOf(c, i)] : null;
+    // Vraie vidéo (Google Drive, YouTube ou Vimeo) : le site ne peut pas lire la position de lecture,
+    // la leçon se valide avec « J'ai terminé » (actif après WATCH_MIN secondes passées sur la page) puis le quiz.
+    var player = l.src
+      ? '<div class="player"><div class="screen video-frame" id="screen"><iframe src="' + esc(l.src) + '" title="' + esc(l.t) + '" allow="autoplay; fullscreen; encrypted-media" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>' + wm + '</div>' +
+        '<div class="controls watch"><span class="small" id="watchMsg" aria-live="polite">' + (done ? "Vidéo déjà validée." : "Regardez la vidéo jusqu'au bout, puis validez-la.") + '</span><button class="btn sm gold" id="doneBtn"' + (done ? "" : " disabled") + '>J\'ai terminé la vidéo</button></div></div>' +
+        '<p class="small muted">Lecture en ligne uniquement. Après la vidéo, validez-la puis répondez au quiz (2 bonnes réponses sur 3) pour débloquer la suivante.</p>'
+      : '<div class="player"><div class="screen" id="screen"><div class="slide"><span class="eyebrow both" style="color:#E8CF85;justify-self:center">' + cat(c.cat).name + '</span><h3>' + l.t + '</h3><p>Vidéo de démonstration · ' + l.m + ' min</p></div>' +
+        wm + '<span class="caption" id="cap"></span><span class="pause-note" id="pauseNote" hidden>Lecture mise en pause : onglet inactif</span>' +
+        '<button class="play" id="bigPlay" aria-label="Lecture" style="position:absolute"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></button></div>' +
+        '<div class="controls"><button id="pp" aria-label="Lecture">▶</button><div class="track" id="track" aria-label="Progression"><span class="seen" id="seen"></span><span class="pos" id="pos"></span></div><span class="time" id="time">0:00 / ' + mmss(dur) + '</span>' +
+        '<select id="rate" aria-label="Vitesse"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select><button id="subs" aria-pressed="true">CC</button></div></div>' +
+        '<p class="small muted">Pas de téléchargement. Impossible d\'avancer au-delà de ce que vous avez déjà regardé. La vidéo est validée à 100 % de visionnage, puis par le quiz (2 bonnes réponses sur 3).</p>' +
+        '<div class="card panel"><div class="panel-h"><h2>Chapitres</h2></div><div class="chapters">' + chapters.map(function (ch) { return '<button data-act="chap" data-f="' + ch[1] + '">' + mmss(dur * ch[1]) + ' · ' + ch[0] + '</button>'; }).join("") + '</div></div>';
+    var inner = '<div class="main-head"><div><span class="eyebrow">' + c.title + (mod ? ' · Module ' + (moduleOf(c, i) + 1) + ' : ' + mod.t : "") + '</span><h1 style="margin-top:8px">' + (i + 1) + '. ' + l.t + '</h1></div>' + (!owns(id) ? '<span class="chip ok">Vidéo d\'essai gratuite</span>' : "") + '</div>' +
+      '<div class="player-layout"><div style="display:grid;gap:16px;min-width:0">' + player +
       '<div id="quizBox"></div>' +
       (S.logged ? '<div class="card panel"><div class="panel-h"><h2>Mes notes</h2><span class="small muted">Horodatées, visibles par vous seul</span></div><ul class="notes-list" id="notes">' + notes.map(function (n) { return '<li><button class="ts" data-act="seek" data-t="' + n.t + '">' + mmss(n.t) + '</button><span>' + esc(n.x) + '</span></li>'; }).join("") + '</ul>' +
         '<div class="row"><input class="input" id="noteIn" placeholder="Ajouter une note à ce moment de la vidéo" style="flex:1;min-width:0"><button class="btn sm" data-act="note">Ajouter</button></div></div>' : "") +
       '<div class="card panel"><div class="panel-h"><h2>Questions et commentaires</h2></div><div class="post" style="padding:0"><div class="by"><b>Moussa T.</b>' + stairs(2) + '<span class="muted small">il y a 2 j</span></div><p>Est-ce que la méthode marche aussi pour un service local (salon de coiffure) ?</p><div class="post" style="padding:10px 0 0 18px;border-left:2px solid var(--gold-soft)"><div class="by"><b>Léa Dossou</b>' + stairs(4) + '</div><p>Oui, en ciblant un rayon de 10 km autour du salon.</p></div></div></div></div>' +
-      '<aside class="card panel" style="align-self:start"><div class="panel-h"><h2>Programme</h2><span class="small muted num">' + doneList(id).length + ' / ' + c.lessons.length + '</span></div><div class="bar"><i style="width:' + pct(id) + '%"></i></div><ul class="lessons">' +
-      c.lessons.map(function (x, k) { var d = doneList(id).indexOf(k) !== -1, o = lessonOpen(id, k); return '<li><button data-act="lesson" data-id="' + id + '" data-i="' + k + '" class="' + (k === i ? "on" : "") + '"' + (o ? "" : " disabled") + '><span class="ic' + (d ? " done" : "") + '">' + (d ? "✓" : o ? k + 1 : "🔒") + '</span><span>' + x.t + '</span><span class="small muted num">' + x.m + ' min</span></button></li>'; }).join("") +
-      '</ul><button class="btn ghost sm" data-act="sheet">Fiche récapitulative (PDF)</button></aside></div>';
+      '<aside class="card panel" style="align-self:start"><div class="panel-h"><h2>Programme</h2><span class="small muted num">' + doneList(id).length + ' / ' + c.lessons.length + '</span></div><div class="bar"><i style="width:' + pct(id) + '%"></i></div>' +
+      modulesOf(c).map(function (md, mk) {
+        var ul = '<ul class="lessons">' + c.lessons.slice(md.from, md.to + 1).map(function (x, j) { var k = md.from + j, d = doneList(id).indexOf(k) !== -1, o = lessonOpen(id, k); return '<li><button data-act="lesson" data-id="' + id + '" data-i="' + k + '" class="' + (k === i ? "on" : "") + '"' + (k === i ? ' aria-current="true"' : "") + (o ? "" : " disabled") + '><span class="ic' + (d ? " done" : "") + '">' + (d ? "✓" : o ? k + 1 : "🔒") + '</span><span>' + x.t + '</span><span class="small muted num">' + (x.m ? x.m + ' min' : "") + '</span></button></li>'; }).join("") + '</ul>';
+        return md.t ? '<details class="module"' + (mk === moduleOf(c, i) ? " open" : "") + '><summary><strong>' + (mk + 1) + '. ' + md.t + '</strong></summary>' + ul + '</details>' : ul;
+      }).join("") +
+      '<button class="btn ghost sm" data-act="sheet">Fiche récapitulative (PDF)</button></aside></div>';
     return S.logged ? shell("mes-formations", inner) : '<section class="block view"><div class="wrap" style="display:grid;gap:24px">' + inner + '</div></section>';
   }
+  var WATCH_MIN = 180; // secondes passées sur une vraie vidéo (onglet visible) avant de pouvoir la valider
   function bindPlayer() {
     if (!P) return;
     var screen = $("screen"); if (!screen) return;
+    if (P.src) return bindRealVideo();
     function paint() {
       var f = P.pos / DEMO_LEN, s = P.seen / DEMO_LEN;
       $("pos").style.width = (f * 100) + "%"; $("seen").style.width = (s * 100) + "%";
@@ -61,6 +75,21 @@
     moveWm(); P.wm = setInterval(moveWm, 4000);
     paint();
     if (doneList(P.id).indexOf(P.i) !== -1) showQuiz(true);
+  }
+  function bindRealVideo() {
+    var corners = [[8, 10], [62, 18], [12, 78], [58, 72], [35, 45]], k = 0;
+    function moveWm() { var c = corners[k++ % corners.length]; var w = $("wm"); if (!w) return; w.style.left = c[0] + "%"; w.style.top = c[1] + "%"; }
+    moveWm(); P.wm = setInterval(moveWm, 4000);
+    var btn = $("doneBtn"), msg = $("watchMsg");
+    if (P.done) { showQuiz(true); return; }
+    P.timer = setInterval(function () {
+      if (document.hidden || !P) return;
+      P.watched++;
+      var left = WATCH_MIN - P.watched;
+      if (left > 0) { if (left % 15 === 0 || left < 15) msg.textContent = "Regardez la vidéo jusqu'au bout. Validation possible dans " + mmss(left) + "."; return; }
+      clearInterval(P.timer); btn.disabled = false; msg.textContent = "Vidéo terminée ? Validez-la pour passer au quiz.";
+    }, 1000);
+    btn.onclick = function () { btn.disabled = true; msg.textContent = "Répondez au quiz ci-dessous."; showQuiz(); };
   }
   document.addEventListener("visibilitychange", function () { if (document.hidden && P && P.playing) { P.stop(); var n = $("pauseNote"); if (n) n.hidden = false; } });
   function quizFor(c) {
@@ -94,14 +123,32 @@
 
   /* ================= Lecteur d'e-book ================= */
   var reader = { size: 18, night: false };
+  var EB_CACHE = {};
+  function loadEbook(e) {
+    if (EB_CACHE[e.id] && !EB_CACHE[e.id].error) return;
+    if (loadEbook.pending === e.id) return;
+    loadEbook.pending = e.id;
+    fetch(e.file).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (d) { EB_CACHE[e.id] = d; }, function () { EB_CACHE[e.id] = { error: true }; })
+      .then(function () { loadEbook.pending = null; if (location.hash === "#e-" + e.id) render2(); });
+  }
   function vEbook(id) {
     var e = ebook(id); if (!e) return v404();
     if (!ebOwned(id) || !ebUnlocked(id)) return '<section class="block view"><div class="wrap" style="max-width:620px;display:grid;gap:14px;justify-items:start"><span class="eyebrow">E-book verrouillé</span><h2>' + e.title + '</h2><p class="muted">Achetez cet e-book, ou lisez d\'abord le volume précédent de la série.</p><a class="btn" href="#ebooks">Voir les e-books</a></div></section>';
     var read = S.readEb.indexOf(id) !== -1, c = cat(e.cat);
     var body = ["Ce chapitre pose les bases. L'objectif n'est pas de tout savoir, mais de savoir quoi faire lundi matin.", "Commencez par un état des lieux honnête : ce qui marche, ce qui ne marche pas, et ce que vous ne mesurez pas encore. Écrivez-le sur une seule page.", "Ensuite, choisissez une seule action à fort impact et tenez-la pendant quatorze jours. La régularité bat l'intensité.", "Exercice : appliquez ces trois étapes à votre projet et partagez votre résultat sur le mur de réussite du forum."];
+    var bodyHtml = body.map(function (p) { return "<p>" + p + "</p>"; }).join("");
+    if (e.file) {
+      // Vrai contenu : chargé à la demande (ebooks/fsNN.json), puis la page est redessinée.
+      var doc = EB_CACHE[id];
+      if (!doc) { loadEbook(e); bodyHtml = '<p class="muted" role="status">Chargement du cours…</p>'; }
+      else if (doc.error) bodyHtml = '<p class="notice err">Ce cours n\'a pas pu être chargé. Vérifiez votre connexion puis <a class="link" href="#e-' + id + '" data-act="ebretry" data-id="' + id + '">réessayez</a>.</p>';
+      else bodyHtml = doc.html + (doc.answer ? '<details class="answer"><summary>Voir le corrigé</summary>' + doc.answer + '</details>' : "");
+    }
+    var label = e.series === "fs" ? (e.n <= 33 ? "Cours N°" + e.n : e.n <= 36 ? "Bonus" : "Examen final") : "Chapitre 1";
     var inner = '<div class="main-head"><div><span class="eyebrow">' + c.name + ' · ' + e.pages + ' pages</span></div><a class="link" href="#bibliotheque">← Bibliothèque</a></div>' +
       '<div class="reader-tools"><button class="btn sm ghost" data-act="font" data-d="-2" aria-label="Réduire le texte">A−</button><button class="btn sm ghost" data-act="font" data-d="2" aria-label="Agrandir le texte">A+</button><button class="btn sm ghost" data-act="night">' + (reader.night ? "Mode clair" : "Mode sombre") + '</button><button class="btn sm ghost" data-act="dl">Télécharger le PDF</button><button class="btn sm ghost" data-act="offline">Lire hors ligne</button></div>' +
-      '<article class="reader' + (reader.night ? " night" : "") + '" style="font-size:' + reader.size + 'px"><span class="eyebrow">Chapitre 1</span><h1 style="margin-top:10px">' + e.title + '</h1><div class="body">' + body.map(function (p) { return "<p>" + p + "</p>"; }).join("") + '</div>' +
+      '<article class="reader' + (reader.night ? " night" : "") + '" style="font-size:' + reader.size + 'px"><span class="eyebrow">' + label + '</span><h1 style="margin-top:10px">' + e.title + '</h1><div class="body">' + bodyHtml + '</div>' +
       '<div class="row" style="margin-top:28px;justify-content:space-between">' + (read ? '<span class="chip ok">Lu · points gagnés</span>' : '<button class="btn gold" data-act="markread" data-id="' + id + '">J\'ai terminé la lecture (+30 pts)</button>') + '<span class="small muted">Reprise automatique à la page 1 / ' + e.pages + '</span></div></article>';
     return S.logged ? shell("bibliotheque", inner) : '<section class="block view"><div class="wrap" style="display:grid;gap:20px">' + inner + '</div></section>';
   }

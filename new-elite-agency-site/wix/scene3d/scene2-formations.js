@@ -38,8 +38,8 @@ export async function buildFormations({ m, y, glowTex, stage }) {
   function cardHtml(id) {
     const c = window.course && window.course(id);
     if (!c) return "";
-    const nVid = c.lessons.length, dur = window.hm ? window.hm(window.mins(c)) : "";
-    return '<span class="ne-card-cat">' + c.level + '</span><strong>' + c.title + '</strong><span>' + nVid + ' vidéos · ' + dur + '</span><span class="ne-card-price">' + (window.eur ? window.eur(c.price) : c.price + " €") + '</span><span class="ne-card-go">Voir la formation →</span>';
+    const nVid = c.lessons.length, m = window.mins ? window.mins(c) : 0, dur = m && window.hm ? " · " + window.hm(m) : "";
+    return '<span class="ne-card-cat">' + c.level + '</span><strong>' + c.title + '</strong><span>' + nVid + ' vidéos' + dur + '</span><span class="ne-card-price">' + (window.eur ? window.eur(c.price) : c.price + " €") + '</span><span class="ne-card-go">Voir la formation →</span>';
   }
 
   let stacked = false;
